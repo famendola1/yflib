@@ -189,7 +189,7 @@ func SortFreeAgentsByStat(client *http.Client, leagueKey string, statID, count i
 		return nil, err
 	}
 
-	var players []*schema.Player
+	players := []*schema.Player{}
 	for _, p := range fc.League.Players.Player {
 		players = append(players, &p)
 	}
