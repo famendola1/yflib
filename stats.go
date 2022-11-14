@@ -89,9 +89,17 @@ func ComparePlayersNBA9CAT(client *http.Client, leagueKey, playerA, playerB stri
 			continue
 		}
 
+		if stat.Value == "-" {
+			return nil, fmt.Errorf("stats unavailable for %q", players[0].Name.Full)
+		}
+
 		statA, err := strconv.ParseFloat(stat.Value, 64)
 		if err != nil {
 			return nil, err
+		}
+
+		if players[1].PlayerStats.Stats.Stat[i].Value == "-" {
+			return nil, fmt.Errorf("stats unavailable for %q", players[1].Name.Full)
 		}
 
 		statB, err := strconv.ParseFloat(players[1].PlayerStats.Stats.Stat[i].Value, 64)
