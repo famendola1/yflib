@@ -13,7 +13,8 @@ const (
 )
 
 var (
-	statIDToName = map[int]string{
+	// StatIDToName is a map of stat ids to their name.
+	StatIDToName = map[int]string{
 		5:       "FG%",
 		8:       "FT%",
 		10:      "3PM",
@@ -27,7 +28,8 @@ var (
 		9007006: "FT",
 	}
 
-	statNameToID = map[string]int{
+	// StatNameToID is a map of stat names to their ID.
+	StatNameToID = map[string]int{
 		"FG%": 5,
 		"FT%": 8,
 		"3PM": 10,

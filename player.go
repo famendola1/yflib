@@ -237,7 +237,7 @@ func ComparePlayersNBA9CAT(client *http.Client, leagueKey, playerA, playerB stri
 			return nil, err
 		}
 
-		diff.Diffs[statIDToName[stat.StatID]] = statA - statB
+		diff.Diffs[StatIDToName[stat.StatID]] = statA - statB
 	}
 	return diff, nil
 }
