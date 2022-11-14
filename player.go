@@ -9,17 +9,33 @@ import (
 	"github.com/famendola1/yfquery/schema"
 )
 
-// Enum of types when requesting for stats.
-const (
-	StatsTypeUnknown = iota
-	StatsTypeSeason
-	StatsTypeAverageSeason
-	StatsTypeDate
-	StatsTypeLastWeek
-	StatsTypeLastWeekAverage
-	StatsTypeLastMonth
-	StatsTypeLastMonthAverage
-)
+func findPlayer(players *schema.Players, name string) (*schema.Player, error) {
+	for _, p := range players.Player {
+		if strings.ToLower(p.Name.Full) == strings.ToLower(name) {
+			return &p, nil
+		}
+	}
+
+	return nil, fmt.Errorf("player %q not found", name)
+}
+
+// GetPlayerKey returns the key of the player, if the player is found.
+func GetPlayerKey(client *http.Client, leagueKey, name string) (string, error) {
+	if len(name) < 3 {
+		return "", fmt.Errorf("name (%q) must contain at least 3 letters", name)
+	}
+
+	fc, err := yfquery.League().Key(leagueKey).Players().Search(name).Get(client)
+	if err != nil {
+		return "", err
+	}
+
+	player, err := findPlayer(&fc.League.Players, name)
+	if err != nil {
+		return "", err
+	}
+	return player.PlayerKey, nil
+}
 
 // GetPlayer searches the given league for a player with the provided player name.
 // If the player is not found, an error is returned. name should contain at
@@ -34,16 +50,10 @@ func GetPlayer(client *http.Client, leagueKey, name string) (*schema.Player, err
 		return nil, err
 	}
 
-	for _, p := range fc.League.Players.Player {
-		if strings.ToLower(p.Name.Full) == strings.ToLower(name) {
-			return &p, nil
-		}
-	}
-
-	return nil, fmt.Errorf("player %q not found", name)
+	return findPlayer(&fc.League.Players, name)
 }
 
-// SearchPlayers searches the given league for a players with the provided player
+// SearchPlayers searches the given league for players with the provided player
 // name. name should contain at least 3 letters.
 func SearchPlayers(client *http.Client, leagueKey, name string) ([]*schema.Player, error) {
 	if len(name) < 3 {
@@ -58,6 +68,22 @@ func SearchPlayers(client *http.Client, leagueKey, name string) ([]*schema.Playe
 	var players []*schema.Player
 	for _, p := range fc.League.Players.Player {
 		players = append(players, &p)
+	}
+
+	return players, nil
+}
+
+// SearchMultiPlayers searches the given league for players with the provided player
+// names. Each name should contain at least 3 letters.
+func SearchMultiPlayers(client *http.Client, leagueKey string, names []string) ([]*schema.Player, error) {
+	players := []*schema.Player{}
+
+	for _, name := range names {
+		found, err := SearchPlayers(client, leagueKey, name)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, found...)
 	}
 
 	return players, nil
@@ -103,13 +129,23 @@ func GetPlayerStats(client *http.Client, leagueKey, name string, statsType int) 
 		return nil, err
 	}
 
-	for _, p := range fc.League.Players.Player {
-		if strings.ToLower(p.Name.Full) == strings.ToLower(name) {
-			return &p, nil
-		}
-	}
+	return findPlayer(&fc.League.Players, name)
+}
 
-	return nil, fmt.Errorf("player %q not found", name)
+// GetPlayersStats searches the given league for players with the provided player names.
+// and returns their requested stats. If the player is not found, an error is
+// returned. Each name should contain at least 3 letters.
+func GetPlayersStats(client *http.Client, leagueKey string, names []string, statsType int) ([]*schema.Player, error) {
+	players := []*schema.Player{}
+
+	for _, name := range names {
+		player, err := GetPlayerStats(client, leagueKey, name, statsType)
+		if err != nil {
+			return nil, err
+		}
+		players = append(players, player)
+	}
+	return players, nil
 }
 
 // GetPlayerAdvancedStats searches the given league for a player with the provided
@@ -124,13 +160,7 @@ func GetPlayerAdvancedStats(client *http.Client, leagueKey, name string) (*schem
 		return nil, err
 	}
 
-	for _, p := range fc.League.Players.Player {
-		if strings.ToLower(p.Name.Full) == strings.ToLower(name) {
-			return &p, nil
-		}
-	}
-
-	return nil, fmt.Errorf("player %q not found", name)
+	return findPlayer(&fc.League.Players, name)
 }
 
 // GetPlayerOwnership searches the league for a player with the provided named and
@@ -141,11 +171,5 @@ func GetPlayerOwnership(client *http.Client, leagueKey, name string) (*schema.Pl
 		return nil, err
 	}
 
-	for _, p := range fc.League.Players.Player {
-		if strings.ToLower(p.Name.Full) == strings.ToLower(name) {
-			return &p, nil
-		}
-	}
-
-	return nil, fmt.Errorf("player %q not found", name)
+	return findPlayer(&fc.League.Players, name)
 }
