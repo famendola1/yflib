@@ -3,6 +3,7 @@ package yflib
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/famendola1/yfquery"
@@ -172,4 +173,71 @@ func GetPlayerOwnership(client *http.Client, leagueKey, name string) (*schema.Pl
 	}
 
 	return findPlayer(&fc.League.Players, name)
+}
+
+// SortFreeAgentsByStat searches the league for the top free agents by the provided stat.
+func SortFreeAgentsByStat(client *http.Client, leagueKey string, statID, count int) ([]*schema.Player, error) {
+	fc, err := yfquery.
+		League().
+		Key(leagueKey).
+		Players().
+		Status(yfquery.PlayerStatusFreeAgent).
+		SortByStat(statID).
+		Count(count).
+		Get(client)
+	if err != nil {
+		return nil, err
+	}
+
+	var players []*schema.Player
+	for _, p := range fc.League.Players.Player {
+		players = append(players, &p)
+	}
+
+	return players, nil
+}
+
+// ComparePlayersNBA9CAT computes the diff in stats between two players in standard NBA 9 category leagues.
+func ComparePlayersNBA9CAT(client *http.Client, leagueKey, playerA, playerB string, statsType int) (*StatsDiff, error) {
+	players, err := GetPlayersStats(client, leagueKey, []string{playerA, playerB}, statsType)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(players) != 2 {
+		return nil, fmt.Errorf("encountered problem fetching stats for %q and %q", playerA, playerB)
+	}
+
+	diff := &StatsDiff{
+		PlayerA: players[0].Name.Full,
+		PlayerB: players[1].Name.Full,
+		Diffs:   make(map[string]float64),
+	}
+
+	for i, stat := range players[0].PlayerStats.Stats.Stat {
+		if !nba9CATIDs[stat.StatID] {
+			continue
+		}
+
+		if stat.Value == "-" {
+			return nil, fmt.Errorf("stats unavailable for %q", players[0].Name.Full)
+		}
+
+		statA, err := strconv.ParseFloat(stat.Value, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		if players[1].PlayerStats.Stats.Stat[i].Value == "-" {
+			return nil, fmt.Errorf("stats unavailable for %q", players[1].Name.Full)
+		}
+
+		statB, err := strconv.ParseFloat(players[1].PlayerStats.Stats.Stat[i].Value, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		diff.Diffs[statIDToName[stat.StatID]] = statA - statB
+	}
+	return diff, nil
 }
