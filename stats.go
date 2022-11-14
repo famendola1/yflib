@@ -1,15 +1,22 @@
 package yflib
 
+import (
+	"fmt"
+
+	"github.com/famendola1/yfquery"
+)
+
 // Enum of types when requesting for stats.
 const (
 	StatsTypeUnknown = iota
 	StatsTypeSeason
 	StatsTypeAverageSeason
 	StatsTypeDate
+	StatsTypeWeek
 	StatsTypeLastWeek
-	StatsTypeLastWeekAverage
+	StatsTypeAverageLastWeek
 	StatsTypeLastMonth
-	StatsTypeLastMonthAverage
+	StatsTypeAverageLastMonth
 )
 
 var (
@@ -61,4 +68,50 @@ type StatsDiff struct {
 	PlayerA string
 	PlayerB string
 	Diffs   map[string]float64
+}
+
+func addStatsTypeToQuery(q *yfquery.StatsQuery, statsType int) (*yfquery.StatsQuery, error) {
+	switch statsType {
+	case StatsTypeUnknown:
+		return nil, fmt.Errorf("unknown stats type requested")
+	case StatsTypeSeason:
+		return q.CurrentSeason(), nil
+	case StatsTypeAverageSeason:
+		return q.CurrentSeasonAverage(), nil
+	case StatsTypeDate:
+		return q.Today(), nil
+	case StatsTypeLastWeek:
+		return q.LastWeek(), nil
+	case StatsTypeAverageLastWeek:
+		return q.LastWeekAverage(), nil
+	case StatsTypeLastMonth:
+		return q.LastMonth(), nil
+	case StatsTypeAverageLastMonth:
+		return q.LastMonthAverage(), nil
+	default:
+		return nil, fmt.Errorf("unknown stats type requested")
+	}
+}
+
+func convertStatsTypeToSortType(statsType int) yfquery.PlayerSortType {
+	switch statsType {
+	case StatsTypeSeason:
+		return yfquery.PlayerSortTypeSeason
+	case StatsTypeAverageSeason:
+		return yfquery.PlayerSortTypeAverageSeason
+	case StatsTypeDate:
+		return yfquery.PlayerSortTypeDate
+	case StatsTypeWeek:
+		return yfquery.PlayerSortTypeWeek
+	case StatsTypeLastWeek:
+		return yfquery.PlayerSortTypeLastWeek
+	case StatsTypeAverageLastWeek:
+		return yfquery.PlayerSortTypeAverageLastWeek
+	case StatsTypeLastMonth:
+		return yfquery.PlayerSortTypeLastMonth
+	case StatsTypeAverageLastMonth:
+		return yfquery.PlayerSortTypeAverageLastMonth
+	default:
+		return yfquery.PlayerSortTypeUnknown
+	}
 }

@@ -6,6 +6,8 @@ github.com/famendola1/yfquery v0.1.1 h1:NdrSYjZRE0mGUGQ88eyKdkK6F616LFOHMqBCYVdy
 github.com/famendola1/yfquery v0.1.1/go.mod h1:GiRy1fPVif0ERuHY+Zbphpe+KxeDDpIU82zVeR/UHkc=
 github.com/famendola1/yfquery v0.1.3 h1:eeW23f2vkAEEnh968xq5w0b8WySUTBIh3xAaYJYllVM=
 github.com/famendola1/yfquery v0.1.3/go.mod h1:GiRy1fPVif0ERuHY+Zbphpe+KxeDDpIU82zVeR/UHkc=
+github.com/famendola1/yfquery v0.1.4 h1:PVJW9ROhrODyl+v3VAA2SgFu/XiluQJVDCjPCLc7CaE=
+github.com/famendola1/yfquery v0.1.4/go.mod h1:GiRy1fPVif0ERuHY+Zbphpe+KxeDDpIU82zVeR/UHkc=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e h1:1r7pUrabqp18hOBcwBwiTsbnFeTZHV9eER/QT5JVZxY=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=
 golang.org/x/net v0.0.0-20220127200216-cd36cc0744dd h1:O7DYs+zxREGLKzKoMQrtrEacpb0ZVXA5rIwylE2Xchk=

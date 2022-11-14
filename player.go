@@ -98,31 +98,9 @@ func GetPlayerStats(client *http.Client, leagueKey, name string, statsType int) 
 		return nil, fmt.Errorf("name (%q) must contain at least 3 letters", name)
 	}
 
-	q := yfquery.League().Key(leagueKey).Players().Search(name).Stats()
-	switch statsType {
-	case StatsTypeUnknown:
-		return nil, fmt.Errorf("unknown stats type requested")
-	case StatsTypeSeason:
-		q = q.CurrentSeason()
-		break
-	case StatsTypeAverageSeason:
-		q = q.CurrentSeasonAverage()
-		break
-	case StatsTypeDate:
-		q = q.Today()
-		break
-	case StatsTypeLastWeek:
-		q = q.LastWeek()
-		break
-	case StatsTypeLastWeekAverage:
-		q = q.LastWeekAverage()
-		break
-	case StatsTypeLastMonth:
-		q = q.LastMonth()
-		break
-	case StatsTypeLastMonthAverage:
-		q = q.LastMonthAverage()
-		break
+	q, err := addStatsTypeToQuery(yfquery.League().Key(leagueKey).Players().Search(name).Stats(), statsType)
+	if err != nil {
+		return nil, err
 	}
 
 	fc, err := q.Get(client)
@@ -176,15 +154,16 @@ func GetPlayerOwnership(client *http.Client, leagueKey, name string) (*schema.Pl
 }
 
 // SortFreeAgentsByStat searches the league for the top free agents by the provided stat.
-func SortFreeAgentsByStat(client *http.Client, leagueKey string, statID, count int) ([]*schema.Player, error) {
-	fc, err := yfquery.
-		League().
-		Key(leagueKey).
-		Players().
-		Status(yfquery.PlayerStatusFreeAgent).
-		SortByStat(statID).
-		Count(count).
-		Get(client)
+func SortFreeAgentsByStat(client *http.Client, leagueKey string, statID, count, statsType int) ([]*schema.Player, error) {
+	sortType := convertStatsTypeToSortType(statsType)
+	q, err := addStatsTypeToQuery(
+		yfquery.League().Key(leagueKey).Players().Status(yfquery.PlayerStatusFreeAgent).SortByStat(statID).SortType(sortType).Count(count).Stats(),
+		statsType)
+	if err != nil {
+		return nil, err
+	}
+
+	fc, err := q.Get(client)
 	if err != nil {
 		return nil, err
 	}

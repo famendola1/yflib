@@ -59,31 +59,9 @@ func GetTeamRoster(client *http.Client, leagueKey, teamName string) (*schema.Tea
 // GetTeamStats searches the given league for a team with the provided team name
 // and return's its stats. If the team is not found an error is returned.
 func GetTeamStats(client *http.Client, leagueKey, teamName string, statsType int) (*schema.Team, error) {
-	q := yfquery.League().Key(leagueKey).Teams().Stats()
-	switch statsType {
-	case StatsTypeUnknown:
-		return nil, fmt.Errorf("unknown stats type requested")
-	case StatsTypeSeason:
-		q = q.CurrentSeason()
-		break
-	case StatsTypeAverageSeason:
-		q = q.CurrentSeasonAverage()
-		break
-	case StatsTypeDate:
-		q = q.Today()
-		break
-	case StatsTypeLastWeek:
-		q = q.LastWeek()
-		break
-	case StatsTypeLastWeekAverage:
-		q = q.LastWeekAverage()
-		break
-	case StatsTypeLastMonth:
-		q = q.LastMonth()
-		break
-	case StatsTypeLastMonthAverage:
-		q = q.LastMonthAverage()
-		break
+	q, err := addStatsTypeToQuery(yfquery.League().Key(leagueKey).Teams().Stats(), statsType)
+	if err != nil {
+		return nil, err
 	}
 
 	fc, err := q.Get(client)
