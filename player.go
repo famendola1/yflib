@@ -67,8 +67,8 @@ func SearchPlayers(client *http.Client, leagueKey, name string) ([]*schema.Playe
 	}
 
 	var players []*schema.Player
-	for _, p := range fc.League.Players.Player {
-		players = append(players, &p)
+	for i := range fc.League.Players.Player {
+		players = append(players, &fc.League.Players.Player[i])
 	}
 
 	return players, nil
@@ -190,8 +190,8 @@ func SortFreeAgentsByStat(client *http.Client, leagueKey string, statID, count i
 	}
 
 	players := []*schema.Player{}
-	for _, p := range fc.League.Players.Player {
-		players = append(players, &p)
+	for i := range fc.League.Players.Player {
+		players = append(players, &fc.League.Players.Player[i])
 	}
 
 	return players, nil
