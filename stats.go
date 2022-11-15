@@ -95,22 +95,22 @@ func addStatsTypeToQuery(q *yfquery.StatsQuery, statsType int) (*yfquery.StatsQu
 
 func convertStatsTypeToSortType(statsType int) yfquery.PlayerSortType {
 	switch statsType {
+	case StatsTypeAverageSeason:
+		fallthrough
 	case StatsTypeSeason:
 		return yfquery.PlayerSortTypeSeason
-	case StatsTypeAverageSeason:
-		return yfquery.PlayerSortTypeAverageSeason
 	case StatsTypeDate:
 		return yfquery.PlayerSortTypeDate
 	case StatsTypeWeek:
 		return yfquery.PlayerSortTypeWeek
+	case StatsTypeAverageLastWeek:
+		fallthrough
 	case StatsTypeLastWeek:
 		return yfquery.PlayerSortTypeLastWeek
-	case StatsTypeAverageLastWeek:
-		return yfquery.PlayerSortTypeAverageLastWeek
+	case StatsTypeAverageLastMonth:
+		fallthrough
 	case StatsTypeLastMonth:
 		return yfquery.PlayerSortTypeLastMonth
-	case StatsTypeAverageLastMonth:
-		return yfquery.PlayerSortTypeAverageLastMonth
 	default:
 		return yfquery.PlayerSortTypeUnknown
 	}
