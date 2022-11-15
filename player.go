@@ -127,21 +127,6 @@ func GetPlayersStats(client *http.Client, leagueKey string, names []string, stat
 	return players, nil
 }
 
-// GetPlayerAdvancedStats searches the given league for a player with the provided
-// player name and returns their advanced stats. If the player is not found, an
-// error is returned. name should contain at least 3 letters.
-func GetPlayerAdvancedStats(client *http.Client, leagueKey, name string) (*schema.Player, error) {
-	if len(name) < 3 {
-		return nil, fmt.Errorf("name (%q) must contain at least 3 letters", name)
-	}
-	fc, err := yfquery.League().Key(leagueKey).Players().Search(name).Stats().Get(client)
-	if err != nil {
-		return nil, err
-	}
-
-	return findPlayer(&fc.League.Players, name)
-}
-
 // GetPlayerOwnership searches the league for a player with the provided named and
 // returns their ownership status.
 func GetPlayerOwnership(client *http.Client, leagueKey, name string) (*schema.Player, error) {
