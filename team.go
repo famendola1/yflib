@@ -139,7 +139,7 @@ func computeCategoryMatchupResultsVsLeague(teamName string, teams *schema.Teams,
 				}
 
 				if teamStats[teamName][stat] > teamStats[tm.Name][stat] {
-					res.CategoriesLost = append(res.CategoriesWon, stat)
+					res.CategoriesLost = append(res.CategoriesLost, stat)
 					continue
 				}
 
