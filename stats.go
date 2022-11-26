@@ -62,6 +62,12 @@ var (
 		18: true,
 		19: true,
 	}
+
+	// inverseStats is the set of stats where having a lower value is considered
+	// good (e.g. turnovers).
+	inverseStats = StatIDSet{
+		19: true,
+	}
 )
 
 // StatIDSet represents a set of stat IDs.

@@ -103,12 +103,17 @@ func CalculateCategoryMathchupResultsVsLeague(client *http.Client, leagueKey, te
 		return nil, err
 	}
 
-	return computeCategoryMatchupResultsVsLeague(teamName, fc.League.Teams.Team, eligibleStats)
+	return computeCategoryMatchupResultsVsLeague(teamName, &fc.League.Teams, eligibleStats)
 }
 
-func computeCategoryMatchupResultsVsLeague(teamName string, teams []schema.Team, eligibleStats StatIDSet) ([]CategoryMatchupResult, error) {
+func computeCategoryMatchupResultsVsLeague(teamName string, teams *schema.Teams, eligibleStats StatIDSet) ([]CategoryMatchupResult, error) {
+	_, err := findTeam(teams, teamName)
+	if err != nil {
+		return nil, err
+	}
+
 	teamStats := make(map[string]map[int]float64)
-	for _, tm := range teams {
+	for _, tm := range teams.Team {
 		teamStats[tm.Name] = make(map[int]float64)
 		for _, stat := range tm.TeamStats.Stats.Stat {
 			if !eligibleStats[stat.StatID] {
@@ -120,20 +125,25 @@ func computeCategoryMatchupResultsVsLeague(teamName string, teams []schema.Team,
 	}
 
 	results := []CategoryMatchupResult{}
-	for _, tm := range teams {
+	for _, tm := range teams.Team {
 		if tm.Name == teamName {
 			continue
 		}
 
 		res := CategoryMatchupResult{HomeTeam: teamName, AwayTeam: tm.Name}
 		for stat := range eligibleStats {
-			if stat == 19 {
+			if inverseStats[stat] {
 				if teamStats[teamName][stat] < teamStats[tm.Name][stat] {
 					res.CategoriesWon = append(res.CategoriesWon, stat)
 					continue
 				}
-			} else if teamStats[teamName][stat] > teamStats[tm.Name][stat] {
-				res.CategoriesWon = append(res.CategoriesWon, stat)
+
+				if teamStats[teamName][stat] > teamStats[tm.Name][stat] {
+					res.CategoriesLost = append(res.CategoriesWon, stat)
+					continue
+				}
+
+				res.CategoriesTied = append(res.CategoriesTied, stat)
 				continue
 			}
 
@@ -142,12 +152,12 @@ func computeCategoryMatchupResultsVsLeague(teamName string, teams []schema.Team,
 				continue
 			}
 
-			if teamStats[teamName][stat] == teamStats[tm.Name][stat] {
-				res.CategoriesTied = append(res.CategoriesTied, stat)
+			if teamStats[teamName][stat] < teamStats[tm.Name][stat] {
+				res.CategoriesLost = append(res.CategoriesLost, stat)
 				continue
 			}
 
-			res.CategoriesLost = append(res.CategoriesLost, stat)
+			res.CategoriesTied = append(res.CategoriesTied, stat)
 			continue
 		}
 		results = append(results, res)
