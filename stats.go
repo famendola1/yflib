@@ -50,7 +50,8 @@ var (
 		"FT":  9007006,
 	}
 
-	nba9CATIDs = map[int]bool{
+	// NBA9CATIDs is the set of IDs for standard 9CAT NBA fantasy leagues.
+	NBA9CATIDs = StatIDSet{
 		5:  true,
 		8:  true,
 		10: true,
@@ -63,11 +64,14 @@ var (
 	}
 )
 
+// StatIDSet represents a set of stat IDs.
+type StatIDSet map[int]bool
+
 // StatsDiff represents the difference of stats between PlayerA and PlayerB.
 type StatsDiff struct {
 	PlayerA string
 	PlayerB string
-	Diffs   map[string]float64
+	Diffs   map[int]float64
 }
 
 func addStatsTypeToQuery(q *yfquery.StatsQuery, statsType int) (*yfquery.StatsQuery, error) {

@@ -3,6 +3,7 @@ package yflib
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/famendola1/yfquery"
@@ -70,4 +71,87 @@ func GetTeamStats(client *http.Client, leagueKey, teamName string, statsType int
 	}
 
 	return findTeam(&fc.League.Teams, teamName)
+}
+
+// GetTeamMatchups searches the given league for a team with the provided team name
+// and returns all of their matchups. If the team is not found an error is returned.
+func GetTeamMatchups(client *http.Client, leagueKey, teamName string) (*schema.Team, error) {
+	fc, err := yfquery.League().Key(leagueKey).Teams().AllMatchups().Get(client)
+	if err != nil {
+		return nil, err
+	}
+
+	return findTeam(&fc.League.Teams, teamName)
+}
+
+// CategoryMatchupResult represents the results from a matchup in a category
+// from the perspective of the HomeTeam.
+type CategoryMatchupResult struct {
+	HomeTeam       string
+	AwayTeam       string
+	CategoriesWon  []int
+	CategoriesLost []int
+	CategoriesTied []int
+}
+
+// CalculateCategoryMathchupResultsVsLeague computes the results of the provided
+// team against every other team in the league for the given week based on the
+// provided stats to use.
+func CalculateCategoryMathchupResultsVsLeague(client *http.Client, leagueKey, teamName string, eligibleStats StatIDSet, week int) ([]CategoryMatchupResult, error) {
+	fc, err := yfquery.League().Key(leagueKey).Teams().Stats().Week(week).Get(client)
+	if err != nil {
+		return nil, err
+	}
+
+	return computeCategoryMatchupResultsVsLeague(teamName, fc.League.Teams.Team, eligibleStats)
+}
+
+func computeCategoryMatchupResultsVsLeague(teamName string, teams []schema.Team, eligibleStats StatIDSet) ([]CategoryMatchupResult, error) {
+	teamStats := make(map[string]map[int]float64)
+	for _, tm := range teams {
+		teamStats[tm.Name] = make(map[int]float64)
+		for _, stat := range tm.TeamStats.Stats.Stat {
+			if !eligibleStats[stat.StatID] {
+				continue
+			}
+			val, _ := strconv.ParseFloat(stat.Value, 64)
+			teamStats[tm.Name][stat.StatID] = val
+		}
+	}
+
+	results := []CategoryMatchupResult{}
+	for _, tm := range teams {
+		if tm.Name == teamName {
+			continue
+		}
+
+		res := CategoryMatchupResult{HomeTeam: teamName, AwayTeam: tm.Name}
+		for stat := range eligibleStats {
+			if stat == 19 {
+				if teamStats[teamName][stat] < teamStats[tm.Name][stat] {
+					res.CategoriesWon = append(res.CategoriesWon, stat)
+					continue
+				}
+			} else if teamStats[teamName][stat] > teamStats[tm.Name][stat] {
+				res.CategoriesWon = append(res.CategoriesWon, stat)
+				continue
+			}
+
+			if teamStats[teamName][stat] > teamStats[tm.Name][stat] {
+				res.CategoriesWon = append(res.CategoriesWon, stat)
+				continue
+			}
+
+			if teamStats[teamName][stat] == teamStats[tm.Name][stat] {
+				res.CategoriesTied = append(res.CategoriesTied, stat)
+				continue
+			}
+
+			res.CategoriesLost = append(res.CategoriesLost, stat)
+			continue
+		}
+		results = append(results, res)
+	}
+
+	return results, nil
 }

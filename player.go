@@ -161,8 +161,8 @@ func SortFreeAgentsByStat(client *http.Client, leagueKey string, statID, count, 
 	return players, nil
 }
 
-// ComparePlayersNBA9CAT computes the diff in stats between two players in standard NBA 9 category leagues.
-func ComparePlayersNBA9CAT(client *http.Client, leagueKey, playerA, playerB string, statsType int) (*StatsDiff, error) {
+// ComparePlayers computes the diff in stats between two players based on the provided set of eligible stats.
+func ComparePlayers(client *http.Client, leagueKey, playerA, playerB string, statsType int, eligibleStats StatIDSet) (*StatsDiff, error) {
 	players, err := GetPlayersStats(client, leagueKey, []string{playerA, playerB}, statsType)
 	if err != nil {
 		return nil, err
@@ -175,11 +175,11 @@ func ComparePlayersNBA9CAT(client *http.Client, leagueKey, playerA, playerB stri
 	diff := &StatsDiff{
 		PlayerA: players[0].Name.Full,
 		PlayerB: players[1].Name.Full,
-		Diffs:   make(map[string]float64),
+		Diffs:   make(map[int]float64),
 	}
 
 	for i, stat := range players[0].PlayerStats.Stats.Stat {
-		if !nba9CATIDs[stat.StatID] {
+		if !eligibleStats[stat.StatID] {
 			continue
 		}
 
@@ -201,7 +201,7 @@ func ComparePlayersNBA9CAT(client *http.Client, leagueKey, playerA, playerB stri
 			return nil, err
 		}
 
-		diff.Diffs[StatIDToName[stat.StatID]] = statA - statB
+		diff.Diffs[stat.StatID] = statA - statB
 	}
 	return diff, nil
 }
