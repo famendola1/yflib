@@ -205,3 +205,12 @@ func ComparePlayers(client *http.Client, leagueKey, playerA, playerB string, sta
 	}
 	return diff, nil
 }
+
+// StatCategoryLeaders returns the top players for the specified stat categort on the given day.
+func StatCategoryLeaders(client *http.Client, date, gameKey string, statID, count int) ([]schema.Player, error) {
+	fc, err := yfquery.Game().Key(gameKey).Players().SortByStat(statID).SortType("date").SortDate(date).Count(count).Stats().Day(date).Get(client)
+	if err != nil {
+		return nil, err
+	}
+	return fc.Game.Players.Player, nil
+}

@@ -2,7 +2,7 @@ module github.com/famendola1/yflib
 
 go 1.19
 
-require github.com/famendola1/yfquery v0.1.7
+require github.com/famendola1/yfquery v0.1.8
 
 require (
 	github.com/antchfx/xmlquery v1.3.12 // indirect
