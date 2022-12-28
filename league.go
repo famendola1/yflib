@@ -19,7 +19,7 @@ func GetLeague(client *http.Client, leagueKey string) (*schema.League, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &fc.League, nil
+	return fc.League, nil
 }
 
 // GetLeagueStandings queries the Yahoo Fantasy API for a leagues Standings.
@@ -29,7 +29,7 @@ func GetLeagueStandings(client *http.Client, leagueKey string) (*schema.Standing
 		return nil, err
 	}
 
-	return &fc.League.Standings, nil
+	return fc.League.Standings, nil
 }
 
 // GetCurrentScoreboard queries the Yahoo Fantasy API for a league's current scoreboard.
@@ -39,7 +39,7 @@ func GetCurrentScoreboard(client *http.Client, leagueKey string) (*schema.Scoreb
 		return nil, err
 	}
 
-	return &fc.League.Scoreboard, nil
+	return fc.League.Scoreboard, nil
 }
 
 // GetScoreboard queries the Yahoo Fantasy API for the scoreboard of a given week.
@@ -49,7 +49,7 @@ func GetScoreboard(client *http.Client, leagueKey string, week int) (*schema.Sco
 		return nil, err
 	}
 
-	return &fc.League.Scoreboard, nil
+	return fc.League.Scoreboard, nil
 }
 
 // GetLeagueRosters queries the Yahoo Fantasy API for all the team rosters in a league.
@@ -59,5 +59,5 @@ func GetLeagueRosters(client *http.Client, leagueKey string) (*schema.Teams, err
 		return nil, err
 	}
 
-	return &fc.Teams, nil
+	return fc.Teams, nil
 }

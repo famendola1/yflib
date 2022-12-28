@@ -27,7 +27,7 @@ func GetTeamKey(client *http.Client, leagueKey, teamName string) (string, error)
 		return "", err
 	}
 
-	tm, err := findTeam(&fc.League.Teams, teamName)
+	tm, err := findTeam(fc.League.Teams, teamName)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +43,7 @@ func GetTeam(client *http.Client, leagueKey, teamName string) (*schema.Team, err
 		return nil, err
 	}
 
-	return findTeam(&fc.League.Teams, teamName)
+	return findTeam(fc.League.Teams, teamName)
 }
 
 // GetTeamRoster searches the given league for a team with the provided team name
@@ -54,7 +54,7 @@ func GetTeamRoster(client *http.Client, leagueKey, teamName string) (*schema.Tea
 		return nil, err
 	}
 
-	return findTeam(&fc.League.Teams, teamName)
+	return findTeam(fc.League.Teams, teamName)
 }
 
 // GetTeamStats searches the given league for a team with the provided team name
@@ -70,7 +70,7 @@ func GetTeamStats(client *http.Client, leagueKey, teamName string, statsType int
 		return nil, err
 	}
 
-	return findTeam(&fc.League.Teams, teamName)
+	return findTeam(fc.League.Teams, teamName)
 }
 
 // GetTeamMatchups searches the given league for a team with the provided team name
@@ -81,7 +81,7 @@ func GetTeamMatchups(client *http.Client, leagueKey, teamName string) (*schema.T
 		return nil, err
 	}
 
-	return findTeam(&fc.League.Teams, teamName)
+	return findTeam(fc.League.Teams, teamName)
 }
 
 // CategoryMatchupResult represents the results from a matchup in a category
@@ -103,7 +103,7 @@ func CalculateCategoryMathchupResultsVsLeague(client *http.Client, leagueKey, te
 		return nil, err
 	}
 
-	return computeCategoryMatchupResultsVsLeague(teamName, &fc.League.Teams, eligibleStats)
+	return computeCategoryMatchupResultsVsLeague(teamName, fc.League.Teams, eligibleStats)
 }
 
 func computeCategoryMatchupResultsVsLeague(teamName string, teams *schema.Teams, eligibleStats StatIDSet) ([]CategoryMatchupResult, error) {

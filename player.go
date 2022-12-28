@@ -31,7 +31,7 @@ func GetPlayerKey(client *http.Client, leagueKey, name string) (string, error) {
 		return "", err
 	}
 
-	player, err := findPlayer(&fc.League.Players, name)
+	player, err := findPlayer(fc.League.Players, name)
 	if err != nil {
 		return "", err
 	}
@@ -51,7 +51,7 @@ func GetPlayer(client *http.Client, leagueKey, name string) (*schema.Player, err
 		return nil, err
 	}
 
-	return findPlayer(&fc.League.Players, name)
+	return findPlayer(fc.League.Players, name)
 }
 
 // SearchPlayers searches the given league for players with the provided player
@@ -108,7 +108,7 @@ func GetPlayerStats(client *http.Client, leagueKey, name string, statsType int) 
 		return nil, err
 	}
 
-	return findPlayer(&fc.League.Players, name)
+	return findPlayer(fc.League.Players, name)
 }
 
 // GetPlayersStats searches the given league for players with the provided player names.
@@ -135,7 +135,7 @@ func GetPlayerOwnership(client *http.Client, leagueKey, name string) (*schema.Pl
 		return nil, err
 	}
 
-	return findPlayer(&fc.League.Players, name)
+	return findPlayer(fc.League.Players, name)
 }
 
 // SortFreeAgentsByStat searches the league for the top free agents by the provided stat.
